@@ -1,67 +1,26 @@
-import cv2
-import os
-import glob
+import cv2, os, glob
 import numpy as np
 from PIL import Image
 
-def VideoBilder(Videopfad):
-    video_path = Videopfad
-    output_folder = 'extrahierte_bilder'
-    os.makedirs(output_folder, exist_ok=True)
-    cap = cv2.VideoCapture(video_path)
+global RGBdBild # Durchschnittlicher RGB über alle Bilder
 
-    if not cap.isOpened():
-        print("Fehler beim Öffnen des Videos.")
 
-    count = 0
-    while cap.isOpened():
-        ret, frame = cap.read()
+def Ordnerauslesen(Bildpfad):
+    bilder_liste = glob.glob(os.path.join(Bildpfad, '*.jpg'))
+    print(f'Es wurden {str(len(bilder_liste))} Bilder in dem Ordner gefunden')
+    ydalleBild = HelligkeitjedesBilder(bilder_liste)
+    print(f'Durchschnittliche Helligkeit aller Bilder: {ydalleBild}')
 
-        if not ret:
-            break
-
-        frame_path = os.path.join(output_folder, f'frame_{count}.jpg')
-        cv2.imwrite(frame_path, frame)
-
-        count += 1
-    cap.release()
-    cv2.destroyAllWindows()
-
-def Helligkeitbestimmen_numpy(Bild):
-    img = Image.open(Bild)
-    data = np.array(img)
-    Y = 0.2126 * data[:, :, 0] + 0.7152 * data[:, :, 1] + 0.0722 * data[:, :, 2]
-    return np.mean(Y)
-
-def Hintergrundrausrechnen_numpy(durchschnittHelligkeit, bild):
-    if durchschnittHelligkeit != 0:
-        neuerDurchschnitt = (durchschnittHelligkeit + bild) / 2
-
-        mask_unter_schwelle = bild < durchschnittHelligkeit * 0.5
-        mask_ueber_schwelle = bild > durchschnittHelligkeit * 1.5
-
-        bild[mask_unter_schwelle] = 0
-        bild[mask_ueber_schwelle] = 255
-
-        return neuerDurchschnitt, bild
-
-    return durchschnittHelligkeit, bild
-
-def Helligkeitbestimmen_und_rausrechnen(ListeBilder):
-    Durchschnittshelligkeit = []
+def HelligkeitjedesBilder(ListeBilder):
+    RGBdBild= []
     for Bild in ListeBilder:
-        helligkeit = Helligkeitbestimmen_numpy(Bild)
-        Durchschnittshelligkeit.append(helligkeit)
-
-    durchschnittHelligkeit = sum(Durchschnittshelligkeit) / len(Durchschnittshelligkeit)
-
-    for i, Bild in enumerate(ListeBilder):
         img = Image.open(Bild)
         data = np.array(img)
-        durchschnittHelligkeit, data = Hintergrundrausrechnen_numpy(durchschnittHelligkeit, data)
+        for RGB in data[:,:]:
+            RGBdBild[0] = RGB[0] + sum(RGBdBild[0])/(len(RGBdBild[1])+1)
+            RGBdBild[1] = RGB[1] + sum(RGBdBild[1]) / (len(RGBdBild[1]) + 1)
 
-        neues_Bild = Image.fromarray(data)
-        neues_Bild.save(f'angepasstes_bild_{i}.jpg')
 
-# Beispielaufruf
-Ordnerauslesen('extrahierte_bilder')
+
+
+Ordnerauslesen('extrahierteBilder')
