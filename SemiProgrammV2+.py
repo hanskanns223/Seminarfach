@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 
 global RGBdBild # Durchschnittlicher RGB über alle Bilder
-
+global MAximwarhier
 
 def Ordnerauslesen(Bildpfad):
     bilder_liste = glob.glob(os.path.join(Bildpfad, '*.jpg'))
