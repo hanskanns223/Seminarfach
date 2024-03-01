@@ -15,34 +15,21 @@ def HelligkeitjedesBilder(ListeBilder):
     for Bild in ListeBilder:
         img = Image.open(Bild)
         data = np.array(img)
-        RGBdBild = np.zeros(3)
-        RGBdBild[0] = data[:,:,0].mean()
-        RGBdBild[1] = data[:,:,1].mean()
-        RGBdBild[2] = data[:, :, 2].mean()
+        RGBdBild = np.mean(data, axis=(0, 1))
         print(RGBdBild)
-        for i in range(data.shape[0]):
-            for j in range(data.shape[1]):
-                #Rote Werte:
-                if data[i,j,0] < RGBdBild[0] and data[i,j,0] - (data[i,j,0] - RGBdBild[0])**2 >=0 :
-                    data[i,j,0] = data[i,j,0] - (data[i,j,0] - RGBdBild[0])**2
+        # Rote Werte
+        data[:, :, 0] = np.where(data[:, :, 0] < RGBdBild[0], data[:, :, 0] - (data[:, :, 0] - RGBdBild[0]) ** 2,
+                                 np.where(data[:, :, 0] > RGBdBild[0],
+                                          data[:, :, 0] + (data[:, :, 0] - RGBdBild[0]) ** 2, data[:, :, 0]))
 
-                else:
-                    if data[i,j,0] > RGBdBild[0] and data[i,j,0] + (data[i,j,0] - RGBdBild[0])**2 <=255 :
-                        data[i,j,0] = data[i,j,0] - (data[i,j,0] - RGBdBild[0])**2
-                # Grüne Werte:
-                if data[i, j, 1] < RGBdBild[1] and data[i, j, 1] - (data[i, j, 1] - RGBdBild[1]) ** 2 >= 0:
-                    data[i, j, 1] = data[i, j, 1] - (data[i, j,1] - RGBdBild[1]) ** 2
+        # Grüne Werte
+        data[:, :, 1] = np.where(data[:, :, 1] < RGBdBild[1], data[:, :, 1] - (data[:, :, 1] - RGBdBild[1]) ** 2,
+                                 np.where(data[:, :, 1] > RGBdBild[1],
+                                          data[:, :, 1] + (data[:, :, 1] - RGBdBild[1]) ** 2, data[:, :, 1]))
 
-                else:
-                    if data[i, j, 1] > RGBdBild[1] and data[i, j, 1] + (data[i, j, 1] - RGBdBild[1]) ** 2 <= 255:
-                        data[i, j, 1] = data[i, j, 1] + (data[i, j, 1] - RGBdBild[1]) ** 2
-
-                #Blaue Werte:
-                if data[i, j, 2] < RGBdBild[2] and data[i, j, 2] - (data[i, j, 2] - RGBdBild[2]) ** 2 >= 0:
-                    data[i, j, 2] = data[i, j, 2] - (data[i, j,2] - RGBdBild[2]) ** 2
-
-                else:
-                    if data[i, j, 2] > RGBdBild[2] and data[i, j, 2] + (data[i, j, 2] - RGBdBild[2]) ** 2 <= 255:
-                        data[i, j, 2] = data[i, j, 2] + (data[i, j, 2] - RGBdBild[2]) ** 2
-        Image.fromarray(data.astype(np.uint8)).save("manipuliertes_bild.jpg")
-Ordnerauslesen('extrahierteBilder')
+        # Blaue Werte
+        data[:, :, 2] = np.where(data[:, :, 2] < RGBdBild[2], data[:, :, 2] - (data[:, :, 2] - RGBdBild[2]) ** 2,
+                                 np.where(data[:, :, 2] > RGBdBild[2],
+                                          data[:, :, 2] + (data[:, :, 2] - RGBdBild[2]) ** 2, data[:, :, 2]))
+        Image.fromarray(data.astype(np.uint8)).save("extrahierte_bilder/manipuliertes_bild.jpg")
+Ordnerauslesen('extrahierte_bilder')
