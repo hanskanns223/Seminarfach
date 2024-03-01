@@ -46,4 +46,5 @@ def Bilderzusammenfügen(ListeBilder, imgsize):
             print(endbild[0][0][0])
         i +=1
     Image.fromarray(endbild.astype(np.uint8)).save("Ausgansbild.jpg")
+    print("Test")
 Ordnerauslesen('extrahierte_bilder')
